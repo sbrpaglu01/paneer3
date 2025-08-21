@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0d0d0d;
+      color: #eee;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      padding: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 1px solid #222;
+      background: #111;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      flex-shrink: 0;
+    }
+
+    .viewer {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+    }
+
+    img.show {
+      opacity: 1;
+    }
+
+    .controls {
+      padding: 12px;
+      background: #111;
+      border-top: 1px solid #222;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    button {
+      background: #222;
+      border: none;
+      padding: 10px 16px;
+      margin: 0 8px;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #444;
+    }
+
+    .page-number {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    @media (max-width: 600px) {
+      button {
+        font-size: 14px;
+        padding: 8px 14px;
+        margin: 0 6px;
+      }
+      header {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header> Reader</header>
+
+  <div class="viewer">
+    <img id="mangaPage" src="" alt="Manga Page" class="show">
+  </div>
+
+  <div class="controls">
+    <button onclick="prevPage()">⬅ Prev</button>
+    <button onclick="nextPage()">Next ➡</button>
+    <div class="page-number" id="pageNumber">Loading...</div>
+  </div>
+
+  <script>
+    // Cloudinary image list (new set)
+    const pages = [
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784343/cover_r8uzzw.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784368/page1_q6yaf2.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784345/page2_g6e62j.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784344/page3_suj7dh.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784345/page4_jlhiqp.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784343/page5_umcsqu.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784344/page6_kpsucv.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784345/page7_ydoiav.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784346/page8_jttxev.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784346/page9_ztf2xe.png",
+      "https://res.cloudinary.com/dpoyeezwn/image/upload/v1755784346/page10_gf4slx.png"
+    ];
+
+    let currentPage = 0;
+    const imgElement = document.getElementById("mangaPage");
+    const pageNumber = document.getElementById("pageNumber");
+
+    // Initialize
+    function updatePage() {
+      imgElement.classList.remove("show");
+      setTimeout(() => {
+        imgElement.src = pages[currentPage];
+        imgElement.onload = () => imgElement.classList.add("show");
+        pageNumber.innerText = currentPage === 0
+          ? "Cover"
+          : `Page ${currentPage} / ${pages.length - 1}`;
+      }, 200);
+    }
+
+    function nextPage() {
+      if (currentPage < pages.length - 1) {
+        currentPage++;
+        updatePage();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        updatePage();
+      }
+    }
+
+    // Keyboard navigation
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") nextPage();
+      if (e.key === "ArrowLeft") prevPage();
+    });
+
+    // Swipe navigation
+    let touchStartX = 0;
+    document.addEventListener("touchstart", (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+    document.addEventListener("touchend", (e) => {
+      let touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) nextPage();
+      if (touchEndX > touchStartX + 50) prevPage();
+    });
+
+    // Load first page
+    updatePage();
+  </script>
+</body>
+</html>
